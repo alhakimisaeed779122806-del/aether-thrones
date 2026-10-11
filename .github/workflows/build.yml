@@ -30,9 +30,26 @@ jobs:
         echo -e "84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
         echo -e "d56f5187479451eabf01fb78af6dfcb131a648ab" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
 
-    - name: Fix Typos in Build Files
+    - name: Generate Missing Resources and Fix Manifest
       run: |
-        # تصحيح أي أخطاء مطبعية في كتابة مكتبة viewmodel-compose تلقائياً
+        # إنشاء مجلدات الموارد إذا لم تكن موجودة
+        mkdir -p app/src/main/res/mipmap-hdpi
+        mkdir -p app/src/main/res/values
+
+        # إنشاء أيقونة افتراضية بسيطة للحد من خطأ AAPT
+        cat << 'EOF' > app/src/main/res/mipmap-hdpi/ic_launcher.png
+        iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==
+        EOF
+        cp app/src/main/res/mipmap-hdpi/ic_launcher.png app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+
+        # إنشاء ملف styles.xml يحتوي على الثيم المطلوب
+        cat << 'EOF' > app/src/main/res/values/styles.xml
+        <resources>
+            <style name="Theme.Material3.DayNight.NoActionBar" parent="android:Theme.Material.Light.NoActionBar" />
+        </resources>
+        EOF
+
+        # تصحيح مسارات المكتبات في ملفات البناء
         find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose:2.7.0:/androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0/g' {} +
         find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose/androidx.lifecycle:lifecycle-viewmodel-compose/g' {} +
 
@@ -74,3 +91,4 @@ jobs:
       with:
         name: aether-thrones-apk
         path: app/build/outputs/apk/debug/app-debug.apk
+concurrency: 
