@@ -19,13 +19,18 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-
     - name: Setup Gradle 8.5
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '8.5'
+
+    # ✅ الرجوع لطريقة قبول التراخيص اليدوية (اللي كانت شغالة معك)
+    - name: Accept Android SDK licenses
+      run: |
+        mkdir -p $ANDROID_SDK_ROOT/licenses
+        echo -e "\n24333f8a43b681627c059ef6a9b573678ef93c03" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo -e "84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo -e "d56f5187479451eabf01fb78af6dfcb131a648ab" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
 
     # ⚠️ هذا القسم احتياطي فقط لتوليد أيقونات وهمية إذا كانت ناقصة
     # إذا كنت تملك أيقونات حقيقية، احذف هذا القسم بالكامل
@@ -42,8 +47,6 @@ jobs:
             <style name="Theme.Material3.DayNight.NoActionBar" parent="android:Theme.Material.Light.NoActionBar" />
         </resources>
         EOF
-
-    # حذفنا أمر sed لأننا عدلنا المكتبة في build.gradle.kts مباشرة
 
     - name: Generate Wrapper and Build APK
       run: |
