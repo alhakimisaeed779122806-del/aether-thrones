@@ -32,22 +32,18 @@ jobs:
 
     - name: Generate Missing Resources and Fix Manifest
       run: |
-        # إنشاء مجلدات الموارد إذا لم تكن موجودة
         mkdir -p app/src/main/res/mipmap-hdpi
         mkdir -p app/src/main/res/values
 
-        # إنشاء أيقونة افتراضية بسيطة لتخطي خطأ AAPT
         echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" | base64 -d > app/src/main/res/mipmap-hdpi/ic_launcher.png
         cp app/src/main/res/mipmap-hdpi/ic_launcher.png app/src/main/res/mipmap-hdpi/ic_launcher_round.png
 
-        # إنشاء ملف styles.xml يحتوي على الثيم المطلوب
         cat << 'EOF' > app/src/main/res/values/styles.xml
         <resources>
             <style name="Theme.Material3.DayNight.NoActionBar" parent="android:Theme.Material.Light.NoActionBar" />
         </resources>
         EOF
 
-        # تصحيح مسارات المكتبات في ملفات البناء آلياً
         find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose:2.7.0:/androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0/g' {} +
         find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose/androidx.lifecycle:lifecycle-viewmodel-compose/g' {} +
 
@@ -78,11 +74,11 @@ jobs:
         org.gradle.jvmargs=-Xmx2048m
         EOF
 
-    - name: Generate Wrapper and Build APK
+    - name: Generate Wrapper and Build APK with Detailed Logs
       run: |
         gradle wrapper --gradle-version 8.5
         chmod +x gradlew
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug --info
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
