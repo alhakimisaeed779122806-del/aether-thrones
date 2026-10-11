@@ -18,11 +18,23 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle
+    - name: Setup Gradle 8.5
       uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.5'
+
+    - name: Accept Android SDK licenses
+      run: |
+        mkdir -p $ANDROID_SDK_ROOT/licenses
+        echo -e "\n24333f8a43b681627c059ef6a9b573678ef93c03" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo -e "84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
+        echo -e "d56f5187479451eabf01fb78af6dfcb131a648ab" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
 
     - name: Build APK with Gradle
-      run: gradle assembleDebug --stacktrace
+      run: |
+        gradle wrapper --gradle-version 8.5
+        chmod +x gradlew
+        ./gradlew assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
