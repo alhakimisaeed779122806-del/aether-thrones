@@ -51,25 +51,14 @@ jobs:
         include(":app")
         EOF
 
-    - name: Generate Gradle Wrapper and Build APK
+    - name: Generate Wrapper and Build with Plain Output
       run: |
         gradle wrapper --gradle-version 8.5
         chmod +x gradlew
-        ./gradlew assembleDebug --stacktrace
+        ./gradlew assembleDebug --console=plain
 
     - name: Upload APK Artifact
-      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: aether-thrones-apk
         path: app/build/outputs/apk/debug/app-debug.apk
-
-    - name: Upload Error Logs on Failure
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-error-reports
-        path: |
-          build/reports/
-          app/build/reports/
-          **/*.log
