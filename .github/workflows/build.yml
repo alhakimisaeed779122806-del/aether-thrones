@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [ "main", "master" ]
-  workflow_dispatch: # يسمح لك تشغله يدوياً من صفحة Actions
+  workflow_dispatch: # لتشغيل البناء يدوياً من تبويب Actions
 
 jobs:
   build:
@@ -19,23 +19,17 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
     - name: Setup Gradle 8.5
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '8.5'
 
-    # ✅ الرجوع لطريقة قبول التراخيص اليدوية (اللي كانت شغالة معك)
-    - name: Accept Android SDK licenses
+    - name: Generate Missing Resources and Auto-Configure Properties
       run: |
-        mkdir -p $ANDROID_SDK_ROOT/licenses
-        echo -e "\n24333f8a43b681627c059ef6a9b573678ef93c03" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo -e "84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo -e "d56f5187479451eabf01fb78af6dfcb131a648ab" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-
-    # ⚠️ هذا القسم احتياطي فقط لتوليد أيقونات وهمية إذا كانت ناقصة
-    # إذا كنت تملك أيقونات حقيقية، احذف هذا القسم بالكامل
-    - name: Generate Missing Resources (Fallback)
-      run: |
+        # 1. إنشاء مجلدات الموارد والأيقونات الافتراضية
         mkdir -p app/src/main/res/mipmap-hdpi
         mkdir -p app/src/main/res/values
 
@@ -46,6 +40,33 @@ jobs:
         <resources>
             <style name="Theme.Material3.DayNight.NoActionBar" parent="android:Theme.Material.Light.NoActionBar" />
         </resources>
+        EOF
+
+        # 2. ضبط إعدادات المستودعات والـ Settings
+        cat << 'EOF' > settings.gradle.kts
+        pluginManagement {
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        rootProject.name = "Aether Thrones"
+        include(":app")
+        EOF
+
+        # 3. تفعيل خصائص AndroidX الضرورية للمشروع
+        cat << 'EOF' > gradle.properties
+        android.useAndroidX=true
+        android.enableJetifier=true
+        org.gradle.jvmargs=-Xmx2048m
         EOF
 
     - name: Generate Wrapper and Build APK
