@@ -74,11 +74,15 @@ jobs:
         org.gradle.jvmargs=-Xmx2048m
         EOF
 
-    - name: Generate Wrapper and Build APK with Detailed Logs
+    - name: Generate Wrapper and Build APK with Error Dumper
       run: |
         gradle wrapper --gradle-version 8.5
         chmod +x gradlew
-        ./gradlew assembleDebug --info
+        ./gradlew assembleDebug || {
+          echo "=== 🔍 KOTLIN COMPILATION ERROR DETAILS ==="
+          find app/build -name "*.log" -exec cat {} \;
+          exit 1
+        }
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
