@@ -30,8 +30,29 @@ jobs:
         echo -e "84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
         echo -e "d56f5187479451eabf01fb78af6dfcb131a648ab" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
 
+    - name: Auto-configure Repositories and Settings
+      run: |
+        cat << 'EOF' > settings.gradle.kts
+        pluginManagement {
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        rootProject.name = "Aether Thrones"
+        include(":app")
+        EOF
+
     - name: Build APK with Gradle
-      run: gradle assembleDebug
+      run: ./gradlew assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
