@@ -30,6 +30,12 @@ jobs:
         echo -e "84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
         echo -e "d56f5187479451eabf01fb78af6dfcb131a648ab" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
 
+    - name: Fix Typos in Build Files
+      run: |
+        # تصحيح أي أخطاء مطبعية في كتابة مكتبة viewmodel-compose تلقائياً
+        find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose:2.7.0:/androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0/g' {} +
+        find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose/androidx.lifecycle:lifecycle-viewmodel-compose/g' {} +
+
     - name: Auto-configure Repositories, Settings and Properties
       run: |
         cat << 'EOF' > settings.gradle.kts
