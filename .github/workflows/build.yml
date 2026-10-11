@@ -36,10 +36,8 @@ jobs:
         mkdir -p app/src/main/res/mipmap-hdpi
         mkdir -p app/src/main/res/values
 
-        # إنشاء أيقونة افتراضية بسيطة للحد من خطأ AAPT
-        cat << 'EOF' > app/src/main/res/mipmap-hdpi/ic_launcher.png
-        iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==
-        EOF
+        # إنشاء أيقونة افتراضية بسيطة لتخطي خطأ AAPT
+        echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" | base64 -d > app/src/main/res/mipmap-hdpi/ic_launcher.png
         cp app/src/main/res/mipmap-hdpi/ic_launcher.png app/src/main/res/mipmap-hdpi/ic_launcher_round.png
 
         # إنشاء ملف styles.xml يحتوي على الثيم المطلوب
@@ -49,7 +47,7 @@ jobs:
         </resources>
         EOF
 
-        # تصحيح مسارات المكتبات في ملفات البناء
+        # تصحيح مسارات المكتبات في ملفات البناء آلياً
         find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose:2.7.0:/androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0/g' {} +
         find . -name "build.gradle*" -exec sed -i 's/androidx.lifecycle.viewmodel-compose/androidx.lifecycle:lifecycle-viewmodel-compose/g' {} +
 
@@ -91,4 +89,3 @@ jobs:
       with:
         name: aether-thrones-apk
         path: app/build/outputs/apk/debug/app-debug.apk
-concurrency: 
